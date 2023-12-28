@@ -57,10 +57,9 @@ func (h *SQSHandler) CreatePoint() error {
 				log.Println("Error al deserializar el mensaje:", err)
 			}
 
-			// Agrega tu lógica de negocio aquí
-			log.Printf("Recibido punto: %+v\n", point)
+			r, _ := json.Marshal(point)
+			h.httpClientCase.Post(h.ServiceUrl, r)
 
-			// Elimina el mensaje de la cola
 			deleteMessageInput := &sqs.DeleteMessageInput{
 				QueueUrl:      aws.String(h.QueueURL),
 				ReceiptHandle: message.ReceiptHandle,
