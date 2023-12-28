@@ -48,7 +48,7 @@ func (h *SQSHandler) CreatePoint() error {
 		if err != nil {
 			log.Fatal("h.SQSClient.ReceiveMessage:", err)
 		}
-		log.Default().Println(result)
+		log.Default().Print(result)
 
 		for _, message := range result.Messages {
 			point := &domain.Point{}
@@ -62,7 +62,7 @@ func (h *SQSHandler) CreatePoint() error {
 			if err != nil {
 				log.Fatal("h.httpClientCase.Post(h.ServiceUrl, r):", err)
 			}
-			log.Default().Println(response)
+			log.Default().Print(response)
 			deleteMessageInput := &sqs.DeleteMessageInput{
 				QueueUrl:      aws.String(h.QueueURL),
 				ReceiptHandle: message.ReceiptHandle,
