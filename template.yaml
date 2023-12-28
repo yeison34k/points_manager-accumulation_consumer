@@ -18,15 +18,18 @@ Resources:
       CodeUri: accumulation/cmd
       Handler: accumulation
       Events:
-        CatchAll:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        MySQSEvent:
+          Type: SQS
           Properties:
-            Path: /accumulation
-            Method: POST
+            Queue: arn:aws:sqs:us-west-1:763564070137:points_manager
+      Environment:
+        Variables:
+          QUEUE_URL: https://sqs.us-west-1.amazonaws.com/763564070137/points_manager
+          SERVICE_URL: https://ecoew8agvc.execute-api.us-west-1.amazonaws.com/Prod/accumulation
       Policies:
         - Version: 2012-10-17
           Statement:
             - Effect: Allow
-              Action: dynamodb:PutItem
-              Resource: arn:aws:dynamodb:us-west-1:763564070137:table/Point
+              Action: sqs:ReceiveMessage
+              Resource: arn:aws:sqs:us-west-1:763564070137:points_manager
               
