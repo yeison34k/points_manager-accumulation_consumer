@@ -5,7 +5,6 @@ import (
 	usecase "accumulation_consumer/internal/usercase"
 	"encoding/json"
 	"log"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -47,6 +46,7 @@ func (h *SQSHandler) CreatePoint() error {
 
 		result, err := h.SQSClient.ReceiveMessage(receiveMessageInput)
 		if err != nil {
+			log.Fatal("h.SQSClient.ReceiveMessage:", err)
 			log.Println("Error recibiendo el mensaje:", err)
 		}
 
@@ -54,22 +54,24 @@ func (h *SQSHandler) CreatePoint() error {
 			point := &domain.Point{}
 			err := json.Unmarshal([]byte(*message.Body), point)
 			if err != nil {
+				log.Fatal("Error al deserializar el mensaje:", err)
 				log.Println("Error al deserializar el mensaje:", err)
 			}
 
 			r, _ := json.Marshal(point)
-			h.httpClientCase.Post(h.ServiceUrl, r)
-
+			_, err = h.httpClientCase.Post(h.ServiceUrl, r)
+			if err != nil {
+				log.Fatal("h.httpClientCase.Post(h.ServiceUrl, r):", err)
+			}
 			deleteMessageInput := &sqs.DeleteMessageInput{
 				QueueUrl:      aws.String(h.QueueURL),
 				ReceiptHandle: message.ReceiptHandle,
 			}
 			_, err = h.SQSClient.DeleteMessage(deleteMessageInput)
 			if err != nil {
+				log.Fatal("Error eliminando el mensaje:", err)
 				log.Println("Error eliminando el mensaje:", err)
 			}
 		}
-
-		time.Sleep(5 * time.Second)
 	}
 }
